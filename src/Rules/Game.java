@@ -18,11 +18,17 @@ public class Game {
         this.scanner = new Scanner(System.in);
     }
     public void start() {
+        long startTime = System.currentTimeMillis();
         boolean isRunning = true;
         while (isRunning) {
+            long currentTime = System.currentTimeMillis();
+            long elapsedMillis = currentTime - startTime;
+            String timeString = formatTime(elapsedMillis);
+            System.out.println("\nЧас гри: " + timeString);
             view.drawBoard(board);
             if (validator.isGameFinished(board)) {
                 System.out.println("\nВітаємо! Ви вирішили Судоку!");
+                System.out.println("Ваш підсумковий час: " + timeString);
                 break;
             }
             System.out.print("Введіть номер рядка (1-9) або '-1' для виходу: ");
@@ -74,6 +80,11 @@ public class Game {
             }
         }
         System.out.println("Гру завершено.");
+    }
+    private String formatTime(long millis) {
+        long seconds = (millis / 1000) % 60;
+        long minutes = (millis / (1000 * 60)) % 60;
+        return String.format("%02d:%02d", minutes, seconds);
     }
     private boolean isInitialPosition(int row, int col) {
         return false;
