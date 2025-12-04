@@ -2,20 +2,23 @@ package Grid;
 
 public class Cell {
     private int value;
-    private boolean canMove;
-    public Cell(int value, boolean canMove) {
+    private boolean isFixed;
+    public Cell(int value, boolean isFixed) {
         this.value = value;
-        this.canMove = canMove;
+        this.isFixed = isFixed;
     }
     public int getValue() {
         return value;
     }
     public void setValue(int value) {
-        if (!canMove) {
+        if (!isFixed) {
             this.value = value;
         }
     }
-    public boolean isCanMove() {
-        return canMove;
+    public boolean isFixed() {
+        return isFixed;
+    }
+    public void setFixed(boolean fixed) {
+        isFixed = fixed;
     }
 }
