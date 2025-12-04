@@ -9,11 +9,11 @@ public class Generator {
     private Random random = new Random();
     private int[][] solvedGrid = new int[9][9];
 
-    public void generateNewGame(Board board) {
+    public void generateNewGame(Board board, Difficulty difficulty) {
         clearBoard(board);
         fillBoard(board, 0, 0);
         saveSolution(board);
-        removeNumbers(board, 27);
+        removeNumbers(board, difficulty.getHoles());
         ensureCoverage(board);
     }
     private boolean fillBoard(Board board, int row, int col) {
@@ -35,29 +35,24 @@ public class Generator {
                 if (fillBoard(board, row, col + 1)) {
                     return true;
                 }
+                board.getCell(row, col).setFixed(false);
                 board.getCell(row, col).setValue(0);
             }
         }
         return false;
     }
     private boolean isSafe(Board board, int row, int col, int num) {
-        for (int i = 0; i <9; i++) {
-            if (board.getCell(row, i).getValue() == num) {
-                return false;
-            }
+        for (int i = 0; i < 9; i++) {
+            if (board.getCell(row, i).getValue() == num) return false;
         }
         for (int i = 0; i < 9; i++) {
-            if (board.getCell(i, col).getValue() == num) {
-                return false;
-            }
+            if (board.getCell(i, col).getValue() == num) return false;
         }
         int startRow = row - row % 3;
         int startCol = col - col % 3;
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
-                if (board.getCell(i + startRow, j + startCol).getValue() == num) {
-                    return false;
-                }
+                if (board.getCell(i + startRow, j + startCol).getValue() == num) return false;
             }
         }
         return true;
@@ -88,16 +83,21 @@ public class Generator {
     }
     private void restoreRandomCellInRow(Board board, int row) {
         int randomCol = random.nextInt(9);
-        board.getCell(row, randomCol).setValue(solvedGrid[row][randomCol]);
+        restoreCell(board, row, randomCol);
     }
     private void restoreRandomCellInCol(Board board, int col) {
         int randomRow = random.nextInt(9);
-        board.getCell(randomRow, col).setValue(solvedGrid[randomRow][col]);
+        restoreCell(board, randomRow, col);
     }
     private void restoreRandomCellInBlock(Board board, int startRow, int startCol) {
         int r = startRow + random.nextInt(3);
         int c = startCol + random.nextInt(3);
-        board.getCell(r, c).setValue(solvedGrid[r][c]);
+        restoreCell(board, r, c);
+    }
+    private void restoreCell(Board board, int r, int c) {
+        int val = solvedGrid[r][c];
+        board.getCell(r, c).setValue(val);
+        board.getCell(r, c).setFixed(true);
     }
     private boolean isRowEmpty(Board board, int row) {
         for (int c = 0; c < 9; c++) if (board.getCell(row, c).getValue() != 0) return false;
@@ -125,11 +125,12 @@ public class Generator {
     private void clearBoard(Board board) {
         for (int r = 0; r < 9; r++) {
             for (int c = 0; c < 9; c++) {
-                board.getCell(r, c).setValue(0);
+                Cell cell = board.getCell(r, c);
+                cell.setFixed(false);
+                cell.setValue(0);
             }
         }
     }
-
     private void shuffleArray(int[] arr) {
         for (int i = arr.length - 1; i > 0; i--) {
             int index = random.nextInt(i + 1);
